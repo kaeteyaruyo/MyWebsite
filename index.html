@@ -256,13 +256,11 @@
                     document.getElementById('songTitle').textContent = randomSong.title;
 
                     // 嵌入 YouTube 播放器
-                    // document.getElementById('videoPlayer').innerHTML =
-                    //     `<iframe src="https://www.youtube.com/embed/${randomSong.videoId}?autoplay=1&mute=0"
-                    //      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    //      allowfullscreen
-                    //      referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
                     document.getElementById('videoPlayer').innerHTML =
-                         `<iframe src="https://www.youtube.com/embed/${randomSong.videoId}" frameborder="0"></iframe>`;
+                        `<iframe src="https://www.youtube.com/embed/${randomSong.videoId}?autoplay=1&mute=0"
+                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                         allowfullscreen
+                         referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
 
                     // 顯示影片容器
                     document.getElementById('videoContainer').classList.add('show');
