@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖誕音樂禮物盒</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #1a472a 0%, #2d5a3d 50%, #0f2818 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 雪花效果 */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            animation: fall linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .santa {
+            font-size: 8em;
+            margin-bottom: 30px;
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .gifts-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .gift-box {
+            font-size: 6em;
+            cursor: pointer;
+            transition: transform 0.3s;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+
+        .gift-box:hover {
+            transform: scale(1.1);
+        }
+
+        .gift-box.shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px) rotate(-5deg); }
+            20%, 40%, 60%, 80% { transform: translateX(10px) rotate(5deg); }
+        }
+
+        .gift-box.open {
+            animation: open 0.5s forwards;
+        }
+
+        @keyframes open {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2) rotateY(180deg); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .video-container {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 1s;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .video-container.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .song-title {
+            color: #fff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: #c41e3a;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(196, 30, 58, 0.4);
+        }
+
+        .reset-btn:hover {
+            background: #a01729;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(196, 30, 58, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .santa { font-size: 5em; }
+            .gift-box { font-size: 4em; }
+            .gifts-container { gap: 20px; }
+            iframe { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎄 聖誕音樂禮物盒 🎄</h1>
+        <div class="santa">🎅</div>
+
+        <div class="gifts-container" id="giftsContainer">
+            <div class="gift-box" onclick="openGift(this)">🎁</div>
+            <div class="gift-box" onclick="openGift(this)">🎁</div>
+            <div class="gift-box" onclick="openGift(this)">🎁</div>
+        </div>
+
+        <div class="video-container" id="videoContainer">
+            <div class="song-title" id="songTitle"></div>
+            <div id="videoPlayer"></div>
+            <button class="reset-btn" onclick="reset()">🎁 再抽一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 30首知名聖誕歌曲
+        const christmasSongs = [
+            { title: "Mariah Carey - All I Want for Christmas Is You", videoId: "yXQViqx6GMY" },
+            { title: "Wham! - Last Christmas", videoId: "E8gmARGvPlI" },
+            { title: "Brenda Lee - Rockin' Around The Christmas Tree", videoId: "1qYz7rfgLWE" },
+            { title: "Bobby Helms - Jingle Bell Rock", videoId: "Z0ajuTaHBtM" },
+            { title: "José Feliciano - Feliz Navidad", videoId: "N8NcQzMQN_U" },
+            { title: "John Lennon - Happy Xmas (War Is Over)", videoId: "flA5ndOyZbI" },
+            { title: "Bing Crosby - White Christmas", videoId: "w9QLn7gM-hY" },
+            { title: "Frank Sinatra - Let It Snow! Let It Snow! Let It Snow!", videoId: "mN7LW0Y00kE" },
+            { title: "Dean Martin - Let It Snow! Let It Snow! Let It Snow!", videoId: "oG_J1r1h_RY" },
+            { title: "The Ronettes - Sleigh Ride", videoId: "FLglEjHoKP4" },
+            { title: "Nat King Cole - The Christmas Song", videoId: "hwacxSnc4tI" },
+            { title: "Andy Williams - It's the Most Wonderful Time of the Year", videoId: "gFtb3EtjEic" },
+            { title: "Ariana Grande - Santa Tell Me", videoId: "nlR0MkrRklg" },
+            { title: "Michael Bublé - It's Beginning to Look a Lot like Christmas", videoId: "BVlUxNMtzCk" },
+            { title: "Kelly Clarkson - Underneath the Tree", videoId: "YfBQQvVXgNA" },
+            { title: "Pentatonix - Hallelujah", videoId: "LRP8d7hhpoQ" },
+            { title: "Justin Bieber - Mistletoe", videoId: "LUjTu8ig3lk" },
+            { title: "Band Aid - Do They Know It's Christmas?", videoId: "bjQzJAKxTrE" },
+            { title: "Sia - Santa's Coming for Us", videoId: "V6_w5lab52I" },
+            { title: "Eartha Kitt - Santa Baby", videoId: "Mk_GpUxc0Xw" },
+            { title: "Burl Ives - A Holly Jolly Christmas", videoId: "ZgN3AG0g_Sw" },
+            { title: "Gene Autry - Rudolph the Red-Nosed Reindeer", videoId: "fDbv0EsCdEw" },
+            { title: "The Jackson 5 - Santa Claus Is Coming to Town", videoId: "iRbMjc3NpHg" },
+            { title: "Trans-Siberian Orchestra - Carol of the Bells", videoId: "sCabI3MdV9g" },
+            { title: "Paul McCartney - Wonderful Christmastime", videoId: "94Ye-3C1FC8" },
+            { title: "Elvis Presley - Blue Christmas", videoId: "u6fOT-dHFAY" },
+            { title: "Chuck Berry - Run Rudolph Run", videoId: "kGp8-Ip0p1E" },
+            { title: "Wizzard - I Wish It Could Be Christmas Everyday", videoId: "Z7vOCNPsXIo" },
+            { title: "Chris Rea - Driving Home for Christmas", videoId: "DDt3u2Ev1cI" },
+            { title: "Shakin' Stevens - Merry Christmas Everyone", videoId: "cIZBwsoTMnY" }
+        ];
+
+        // 創建雪花
+        function createSnowflakes() {
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                snowflake.style.opacity = Math.random();
+                document.body.appendChild(snowflake);
+            }
+        }
+
+        function openGift(giftElement) {
+            // 禁止重複點擊
+            if (giftElement.classList.contains('shake') || giftElement.classList.contains('open')) {
+                return;
+            }
+
+            // 搖晃動畫
+            giftElement.classList.add('shake');
+
+            setTimeout(() => {
+                // 打開動畫
+                giftElement.classList.remove('shake');
+                giftElement.classList.add('open');
+
+                setTimeout(() => {
+                    // 隨機選擇一首歌
+                    const randomSong = christmasSongs[Math.floor(Math.random() * christmasSongs.length)];
+
+                    // 顯示歌曲標題
+                    document.getElementById('songTitle').textContent = randomSong.title;
+
+                    // 嵌入 YouTube 播放器
+                    // document.getElementById('videoPlayer').innerHTML =
+                    //     `<iframe src="https://www.youtube.com/embed/${randomSong.videoId}?autoplay=1&mute=0"
+                    //      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    //      allowfullscreen
+                    //      referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+                    document.getElementById('videoPlayer').innerHTML =
+                         `<iframe src="https://www.youtube.com/embed/${randomSong.videoId}" frameborder="0"></iframe>`;
+
+                    // 顯示影片容器
+                    document.getElementById('videoContainer').classList.add('show');
+
+                    // 隱藏所有禮物盒
+                    document.getElementById('giftsContainer').style.display = 'none';
+                }, 500);
+            }, 500);
+        }
+
+        function reset() {
+            // 重置所有元素
+            document.getElementById('videoContainer').classList.remove('show');
+            document.getElementById('giftsContainer').style.display = 'flex';
+
+            const gifts = document.querySelectorAll('.gift-box');
+            gifts.forEach(gift => {
+                gift.classList.remove('shake', 'open');
+                gift.style.transform = 'scale(1)';
+                gift.style.opacity = '1';
+            });
+
+            document.getElementById('videoPlayer').innerHTML = '';
+        }
+
+        // 頁面載入時創建雪花
+        createSnowflakes();
+    </script>
+</body>
+</html>
